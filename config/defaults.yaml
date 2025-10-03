@@ -144,3 +144,10 @@ fedprox:
   mu: 0.01
 pfedsim:
   warmup_round: 0.5
+
+pflmf:
+  num_steps_u: 1
+  num_steps_v: 500
+  lr_u: 0.001
+  lr_v: 0.001
+  rank: 10 
