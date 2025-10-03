@@ -33,6 +33,7 @@ from src.utils.logger import Logger
 from src.utils.metrics import Metrics
 from src.utils.models import MODELS, DecoupledModel
 from src.utils.trainer import FLbenchTrainer
+from src.utils.models import MODELS, LowRank_CNN
 
 
 class FedAvgServer:
@@ -219,10 +220,17 @@ class FedAvgServer:
             TypeError: If `external_model_weights_path` is not a valid `.pt` file.
         """
         if model is None:
-            self.model: DecoupledModel = MODELS[self.args.model.name](
-                dataset=self.args.dataset.name,
-                pretrained=self.args.model.use_torchvision_pretrained_weights,
-            )
+            if self.args.model.name == "lowrank_cnn":
+                self.model = LowRank_CNN(
+                    rank=int(self.args.pflmf.rank),  # comes from config.defaults.yaml under pflmf.rank
+                    dataset=self.args.dataset.name,
+                    pretrained=self.args.model.use_torchvision_pretrained_weights,
+                )
+            else:
+                self.model = MODELS[self.args.model.name](
+                    dataset=self.args.dataset.name,
+                    pretrained=self.args.model.use_torchvision_pretrained_weights,
+                )
         else:
             self.model = model
         self.model.check_and_preprocess(self.args)
