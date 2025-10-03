@@ -31,6 +31,7 @@ def prune_args(args: Namespace) -> dict:
         args_dict["emnist_split"] = args.emnist_split
     elif args.dataset == "cifar100":
         args_dict["super_class"] = bool(args.super_class)
+        args_dict["super_class_version"] = str(args.super_class_version)
         args_dict["monitor_window_name_suffix"] += "-use20superclasses"
     elif args.dataset == "synthetic":
         args_dict["beta"] = args.beta
