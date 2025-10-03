@@ -379,6 +379,7 @@ if __name__ == "__main__":
 
     # For CIFAR-100 only
     parser.add_argument("--super_class", type=int, default=0)
+    parser.add_argument("--super_class_version", type = str, default = "train", choices = ["train", "new_clients"])
 
     # For EMNIST only
     parser.add_argument(
