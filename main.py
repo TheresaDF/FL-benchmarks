@@ -6,9 +6,14 @@ from pathlib import Path
 import hydra
 from omegaconf import DictConfig
 
+import platform 
 from src.server.fedavg import FedAvgServer
 
-FLBENCH_ROOT = Path(__file__).parent.absolute()
+if platform.node() == 'mac.comp.clients.local': 
+    FLBENCH_ROOT = Path(__file__).parent.absolute()
+else: 
+    FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
+
 if FLBENCH_ROOT not in sys.path:
     sys.path.append(FLBENCH_ROOT.as_posix())
 

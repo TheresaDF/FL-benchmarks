@@ -11,6 +11,7 @@ class pFLMFClient(FedPerClient):
         self.u_steps = float(getattr(self.args.pflmf, "num_steps_u", 1))
         self.lr_v = float(getattr(self.args.pflmf, "lr_v", 0.0001))
         self.lr_u = float(getattr(self.args.pflmf, "lr_u", 0.001))
+        self.rank = float(getattr(self.args.pflmf, "rank", 10))
 
 def fit(self):
     self.model.train()

@@ -19,6 +19,7 @@ class pFLMFServer(FedAvgServer):
         parser.add_argument("--num_steps_v", type=float, default=1, help="pFLMF's number of v steps")
         parser.add_argument("--num_steps_u", type=float, default=1, help="pFLMF's number of u steps")
         parser.add_argument("--lr_v", type=float, default=0.0001, help="pFLMF's learning rate of v")
-        parser.add_argument("--lr_u", type=float, default=0.001, help="pFLMF's learning rate of u")     
+        parser.add_argument("--lr_u", type=float, default=0.001, help="pFLMF's learning rate of u") 
+        parser.add_argument("--rank", type=float, default=10, help="rank of matrix factorization")     
 
         return parser.parse_args(args_list)

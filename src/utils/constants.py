@@ -2,10 +2,15 @@ import json
 import os
 from enum import Enum
 from pathlib import Path
+import platform 
 
 from torch import optim
 
-FLBENCH_ROOT = Path(__file__).parent.parent.parent.absolute()
+if platform.node() == 'mac.comp.clients.local': 
+    FLBENCH_ROOT = Path(__file__).parent.absolute()
+else: 
+    FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
+
 OUT_DIR = FLBENCH_ROOT / "out"
 TEMP_DIR = FLBENCH_ROOT / "temp"
 

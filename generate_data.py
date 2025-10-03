@@ -8,6 +8,7 @@ from collections import Counter
 from copy import deepcopy
 from pathlib import Path
 from typing import Optional
+import platform 
 
 import numpy as np
 
@@ -30,7 +31,10 @@ from data.utils.schemes import (
 from data.utils.schemes.flower import flower_partition
 from src.utils.functional import fix_random_seed
 
-CURRENT_DIR = Path(__file__).parent.absolute()
+if platform.node() == 'mac.comp.clients.local': 
+    CURRENT_DIR = Path(__file__).parent.absolute()
+else: 
+    CURRENT_DIR = Path("../../../scratch/tdafr/benchmark")
 
 
 def main(args):
