@@ -1,0 +1,16 @@
+# folders
+notebooks/*
+out/*
+
+# data folders
+data/celeba
+data/cifar100
+data/domain
+data/download
+data/femnist
+data/leaf_utils
+
+# file types
+*.pt
+*.pyc 
+
