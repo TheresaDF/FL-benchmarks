@@ -17,10 +17,11 @@ import yaml
 import glob 
 import os 
 
-if ("titans" in platform.node()) or ("gpu" in platform.node()):
-    FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
-else: 
+
+if ("mac" in platform.node()) or ("client" in platform.node()):
     FLBENCH_ROOT = Path(os.getcwd())
+else: 
+    FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
 
 # set device 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

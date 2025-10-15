@@ -5,9 +5,11 @@ from pathlib import Path
 
 from torch import optim
 
-FLBENCH_ROOT = Path(__file__).parent.parent.parent.absolute()
-OUT_DIR = FLBENCH_ROOT / "out"
-TEMP_DIR = FLBENCH_ROOT / "temp"
+if ("mac" in platform.node()) or ("client" in platform.node()):
+    FLBENCH_ROOT = Path(os.getcwd())
+else: 
+    FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
+    
 
 
 class MODE(Enum):
