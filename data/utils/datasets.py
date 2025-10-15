@@ -411,9 +411,19 @@ class CIFAR100(BaseDataset):
         elif isinstance(args, dict):
             super_class = args["super_class"]
 
+        if isinstance(args, (Namespace, DictConfig)):
+            super_class_version = args.super_class_version
+        elif isinstance(args, dict):
+            super_class_version = args["super_class_version"]
+
+        if isinstance(args, (Namespace, DictConfig)):
+            subset = args.subset
+        elif isinstance(args, dict):
+            subset = args["subset"]
+
         if super_class:
             # super_class: [sub_classes]
-            CIFAR100_SUPER_CLASS = {
+            CIFAR100_SUPER_CLASS_ALL = {
                 0: ["beaver", "dolphin", "otter", "seal", "whale"],
                 1: ["aquarium_fish", "flatfish", "ray", "shark", "trout"],
                 2: ["orchid", "poppy", "rose", "sunflower", "tulip"],
@@ -435,16 +445,97 @@ class CIFAR100(BaseDataset):
                 18: ["bicycle", "bus", "motorcycle", "pickup_truck", "train"],
                 19: ["lawn_mower", "rocket", "streetcar", "tank", "tractor"],
             }
-            mapping = {}
-            for super_cls, sub_cls in CIFAR100_SUPER_CLASS.items():
-                for cls in sub_cls:
-                    mapping[cls] = super_cls
-            new_targets = []
-            for cls in targets:
-                new_targets.append(mapping[train_part.classes[cls]])
-            targets = torch.tensor(new_targets, dtype=torch.long)
-            classes = list(range(20))
+            CIFAR100_SUPER_CLASS_TRAIN = {
+                0: ["beaver", "dolphin", "otter"],
+                1: ["aquarium_fish", "flatfish", "ray"],
+                2: ["orchid", "poppy", "rose"],
+                3: ["bottle", "bowl", "can"],
+                4: ["apple", "mushroom", "orange"],
+                5: ["clock", "keyboard", "lamp"],
+                6: ["bed", "chair", "couch"],
+                7: ["bee", "beetle", "butterfly"],
+                8: ["bear", "leopard", "lion"],
+                9: ["cloud", "forest", "mountain"],
+                10: ["bridge", "castle", "house"],
+                11: ["camel", "cattle", "chimpanzee"],
+                12: ["fox", "porcupine", "possum"],
+                13: ["crab", "lobster", "snail"],
+                14: ["baby", "boy", "girl"],
+                15: ["crocodile", "dinosaur", "lizard"],
+                16: ["hamster", "mouse", "rabbit"],
+                17: ["maple_tree", "oak_tree", "palm_tree"],
+                18: ["bicycle", "bus", "motorcycle"],
+                19: ["lawn_mower", "rocket", "streetcar"],
+            }
+            CIFAR100_SUPER_CLASS_INCLUDE = {
+                0: ["seal", "whale"],
+                1: ["shark", "trout"],
+                2: ["sunflower", "tulip"],
+                3: ["cup", "plate"],
+                4: ["pear", "sweet_pepper"],
+                5: ["telephone", "television"],
+                6: ["table", "wardrobe"],
+                7: ["caterpillar", "cockroach"],
+                8: ["tiger", "wolf"],
+                9: ["plain", "sea"],
+                10: ["road", "skyscraper"],
+                11: ["elephant", "kangaroo"],
+                12: ["raccoon", "skunk"],
+                13: ["spider", "worm"],
+                14: [ "man", "woman"],
+                15: ["snake", "turtle"],
+                16: ["shrew", "squirrel"],
+                17: ["pine_tree", "willow_tree"],
+                18: ["pickup_truck", "train"],
+                19: ["tank", "tractor"],
+            }
 
+            if super_class_version == "train": 
+                CIFAR100_SUPER_CLASS = CIFAR100_SUPER_CLASS_TRAIN
+            elif super_class_version == "new_clients": 
+                CIFAR100_SUPER_CLASS = CIFAR100_SUPER_CLASS_INCLUDE
+            else: 
+                CIFAR100_SUPER_CLASS = CIFAR100_SUPER_CLASS_ALL
+           
+           # --- Combine train + test data ---
+            class_names = train_part.classes  # CIFAR-100 fine-grained class names
+
+            # --- Build mapping: subclass → superclass ---
+            mapping = {
+                subclass: super_idx
+                for super_idx, subclasses in CIFAR100_SUPER_CLASS.items()
+                for subclass in subclasses
+            }
+
+            # --- Filter to only include subclasses in this partition ---
+            allowed_subclasses = [s for lst in CIFAR100_SUPER_CLASS.values() for s in lst]
+            include_indices = [
+                i for i, cls_idx in enumerate(targets)
+                if class_names[cls_idx] in allowed_subclasses
+            ]
+
+            data = data[include_indices]
+            fine_targets = targets[include_indices]
+
+            # --- Map fine targets → superclass targets ---
+            targets = torch.tensor(
+                [mapping[class_names[int(cls_idx)]] for cls_idx in fine_targets],
+                dtype=torch.long,
+            )
+
+            # --- If we only need a subset then shuffle and 
+            N = len(data)
+            random_indices = torch.randperm(N)
+            if subset == "train":
+                data = data[random_indices, :, :, :][:N//2]
+                targets = targets[random_indices][:N//2]
+            elif subset == "new_clients": 
+                data = data[random_indices, :, :, :][N//2:]
+                targets = targets[random_indices][N//2:]
+
+            # --- Update class list (20 superclasses) ---
+            classes = list(range(20))
+        
         super().__init__(
             data=data,
             targets=targets,

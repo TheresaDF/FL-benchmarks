@@ -595,7 +595,7 @@ class LowRank_CNN(DecoupledModel):
         )
 
         self.base = nn.Linear(rank, total_params, bias=False)  # U
-        self.classifier = nn.Parameter(torch.randn(rank))       # v
+        self.classifier = nn.Parameter(torch.randn(rank))      # v
 
         # Explicit biases (not from U @ v)
         self.bias_conv1 = nn.Parameter(torch.zeros(dims["conv1"][0]))
@@ -629,77 +629,6 @@ class LowRank_CNN(DecoupledModel):
         x = torch.flatten(x, start_dim=1)
         x = F.linear(x, fc_w, bias=self.bias_fc)
         return x
-
-
-
-
-# class LowRank_DNN(DecoupledModel):
-#     feature_length = {
-#         "mnist": 784,
-#         "medmnistS": 784,
-#         "medmnistC": 784,
-#         "medmnistA": 784,
-#         "fmnist": 784,
-#         "emnist": 784,
-#         "femnist": 784,
-#         "cifar10": 3072,
-#         "cinic10": 3072,
-#         "svhn": 3072,
-#         "cifar100": 3072,
-#         "usps": 1536,
-#         "synthetic": DATA_SHAPE["synthetic"],
-#     }
-
-#     def __init__(self, rank: int, dataset: str, pretrained=False):
-#         """
-#         rank      – how many base subnetworks to create
-#         dataset   – key used to look up input size and #classes
-#         pretrained – kept for API compatibility, currently unused
-#         """
-#         super().__init__()
-#         in_dim      = self.feature_length[dataset]
-#         self.num_classes = NUM_CLASSES[dataset]
-
-#         # ------------------------------------------------------------------ #
-#         # 1.  Build `rank` identical 3-layer MLPs and store them in a ModuleList
-#         # ------------------------------------------------------------------ #
-#         layers_base = []
-#         for _ in range(rank):
-#             layers_base.append(
-#                 nn.Sequential(
-#                     nn.Linear(in_dim, 128), nn.ReLU(inplace=True),
-#                     nn.Linear(128, 64),     nn.ReLU(inplace=True),
-#                     nn.Linear(64, self.num_classes)    # logits
-#                 )
-#             )
-#         self.base = nn.ModuleList(layers_base)  # size = `rank`
-
-#         # ------------------------------------------------------------------ #
-#         # 2.  Learnable coefficients v \in R^rank – exactly like before
-#         # ------------------------------------------------------------------ #
-#         self.classifier = nn.Parameter(torch.randn(rank))
-
-#         # (optional) normalise v at init so that ∑|vᵢ| ≈ 1
-#         with torch.no_grad():
-#             self.classifier.div_(rank)
-
-#     # ---------------------------------------------------------------------- #
-#     # 3.  Forward: weighted sum of each subnetwork’s logits
-#     # ---------------------------------------------------------------------- #
-#     def forward(self, x):
-#         x = torch.flatten(x, start_dim=1)             # [B, in_dim]
-#         combined = torch.zeros(x.size(0), self.num_classes,
-#                                device=x.device, dtype=x.dtype)
-
-#         # accumulate ∑ vᵢ · fᵢ(x)
-#         for i, sub_net in enumerate(self.base):
-#             combined += self.classifier[i] * sub_net(x)
-
-#         return combined           # raw logits, leave softmax to the loss
-
-
-
-
 
 
 

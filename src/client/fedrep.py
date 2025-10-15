@@ -21,9 +21,10 @@ class FedRepClient(FedPerClient):
                 if E < self.local_epoch - self.args.fedrep.train_body_epoch:
                     self.model.base.zero_grad()
                 else:
-                    # self.model.classifier.zero_grad()
-                    if self.model.classifier.grad is not None:
-                        self.model.classifier.grad.zero_()
+                    # # self.model.classifier.zero_grad()
+                    # if self.model.classifier.grad is not None:
+                    #     self.model.classifier.grad.zero_()
+                    self.model.classifier.zero_grad()
                 self.optimizer.step()
 
             if self.lr_scheduler is not None:
