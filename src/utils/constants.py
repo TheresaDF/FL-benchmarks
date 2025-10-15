@@ -2,7 +2,7 @@ import json
 import os
 from enum import Enum
 from pathlib import Path
-
+import platform
 from torch import optim
 
 if ("mac" in platform.node()) or ("client" in platform.node()):
@@ -10,7 +10,7 @@ if ("mac" in platform.node()) or ("client" in platform.node()):
 else: 
     FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
     
-
+print("Directory", FLBENCH_ROOT)
 
 class MODE(Enum):
     SERIAL = 0
