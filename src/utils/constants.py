@@ -119,8 +119,8 @@ INPUT_CHANNELS = {
 
 
 def _get_domainnet_args():
-    if os.path.isfile(FLBENCH_ROOT / "data" / "domain" / "metadata.json"):
-        with open(FLBENCH_ROOT / "data" / "domain" / "metadata.json", "r") as f:
+    if os.path.isfile(FLBENCH_ROOT + "/data" + "/domain" + "/metadata.json"):
+        with open(FLBENCH_ROOT + "/data" + "/domain" + "/metadata.json", "r") as f:
             metadata = json.load(f)
         return metadata
     else:
@@ -128,8 +128,8 @@ def _get_domainnet_args():
 
 
 def _get_synthetic_args():
-    if os.path.isfile(FLBENCH_ROOT / "data" / "synthetic" / "args.json"):
-        with open(FLBENCH_ROOT / "data" / "synthetic" / "args.json", "r") as f:
+    if os.path.isfile(FLBENCH_ROOT + "/data" + "/synthetic" + "/args.json"):
+        with open(FLBENCH_ROOT + "/data" + "/synthetic" + "/args.json", "r") as f:
             metadata = json.load(f)
         return metadata
     else:

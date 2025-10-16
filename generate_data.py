@@ -36,15 +36,15 @@ CURRENT_DIR = os.getcwd()
 
 
 def main(args):
-    dataset_root = CURRENT_DIR / "data" / args.dataset
+    dataset_root = CURRENT_DIR + "/data/" + args.dataset
 
     fix_random_seed(args.seed, args.use_cuda)
 
     if not os.path.isdir(dataset_root):
         os.mkdir(dataset_root)
 
-    if os.path.isfile(dataset_root / "partition_md5.txt"):
-        with open(dataset_root / "partition_md5.txt", "r") as f:
+    if os.path.isfile(dataset_root + "/partition_md5.txt"):
+        with open(dataset_root + "/partition_md5.txt", "r") as f:
             md5 = f.read()
             if md5 == hashlib.md5(json.dumps(args.__dict__).encode()).hexdigest():
                 print("Partition file already exists. Skip partitioning.")
@@ -332,16 +332,16 @@ def main(args):
                 save_path=f"{dataset_root}/class_distribution.png",
             )
 
-    with open(dataset_root / "partition.pkl", "wb") as f:
+    with open(dataset_root + "/partition.pkl", "wb") as f:
         pickle.dump(partition, f)
 
-    with open(dataset_root / "all_stats.json", "w") as f:
+    with open(dataset_root + "/all_stats.json", "w") as f:
         json.dump(stats, f, indent=4)
 
-    with open(dataset_root / "args.json", "w") as f:
+    with open(dataset_root + "/args.json", "w") as f:
         json.dump(prune_args(args), f, indent=4)
 
-    with open(dataset_root / "partition_md5.txt", "w") as f:
+    with open(dataset_root + "/partition_md5.txt", "w") as f:
         f.write(hashlib.md5(json.dumps(args.__dict__).encode()).hexdigest())
 
 

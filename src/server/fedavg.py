@@ -74,14 +74,14 @@ class FedAvgServer:
 
         self.output_dir = Path(HydraConfig.get().runtime.output_dir)
         with open(
-            FLBENCH_ROOT / "data" / self.args.dataset.name / "args.json", "r"
+            FLBENCH_ROOT +"/data/" + self.args.dataset.name + "/args.json", "r"
         ) as f:
             self.args.dataset.update(DictConfig(json.load(f)))
 
         # get client partition info
         try:
             partition_path = (
-                FLBENCH_ROOT / "data" / self.args.dataset.name / "partition.pkl"
+                FLBENCH_ROOT + "/data/" + self.args.dataset.name + "/partition.pkl"
             )
             with open(partition_path, "rb") as f:
                 self.data_partition = pickle.load(f)
@@ -333,7 +333,7 @@ class FedAvgServer:
         """Return each client's train/val/test indices from partition."""
         try:
             partition_path = (
-                FLBENCH_ROOT / "data" / self.args.dataset.name / "partition.pkl"
+                FLBENCH_ROOT + "/data/" + self.args.dataset.name + "/partition.pkl"
             )
             with open(partition_path, "rb") as f:
                 partition = pickle.load(f)
@@ -344,7 +344,7 @@ class FedAvgServer:
     def get_dataset(self) -> BaseDataset:
         """Load the dataset according to the config."""
         dataset: BaseDataset = DATASETS[self.args.dataset.name](
-            root=FLBENCH_ROOT / "data" / self.args.dataset.name,
+            root=FLBENCH_ROOT + "/data/" + self.args.dataset.name,
             args=self.args.dataset,
             **self.get_dataset_transforms(),
         )
