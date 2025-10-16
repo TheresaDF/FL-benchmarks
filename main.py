@@ -8,10 +8,11 @@ from omegaconf import DictConfig
 
 from src.server.fedavg import FedAvgServer
 
-if ("mac" in platform.node()) or ("client" in platform.node()):
-    FLBENCH_ROOT = Path(os.getcwd())
-else: 
-    FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
+FLBENCH_ROOT = Path(__file__).parent.absolute()
+if FLBENCH_ROOT not in sys.path:
+    sys.path.append(FLBENCH_ROOT.as_posix())
+
+print(FLBENCH_ROOT)
 
 from src.utils.functional import parse_args
 
