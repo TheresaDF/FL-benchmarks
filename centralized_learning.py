@@ -25,6 +25,7 @@ def get_dataset(dataset_name, train_transform=None, test_transform=None):
 
     # Load full dataset
     dataset = DATASETS[dataset_name](root, args)
+    print(len(dataset))
 
     # Switch dataset transforms to centralized train/test transforms if provided
     dataset.train_data_transform = train_transform
