@@ -513,6 +513,7 @@ class CIFAR100(BaseDataset):
                 i for i, cls_idx in enumerate(targets)
                 if class_names[cls_idx] in allowed_subclasses
             ]
+
             data = data[include_indices]
             fine_targets = targets[include_indices]
 
@@ -743,3 +744,11 @@ DATASETS: Dict[str, Type[BaseDataset]] = {
     "cinic10": CINIC10,
     "domain": DomainNet,
 }
+
+
+if __name__ == "__main__": 
+    root = "data/cifar100"
+    with open(root + "/args.json", "r") as f: 
+        args = json.load(f)
+    
+    dataset = DATASETS["cifar100"](root, args)
