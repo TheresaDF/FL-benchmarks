@@ -2,7 +2,6 @@ from numpy import isin
 from numpy.testing import rundocs
 from torch.utils.data import Subset, DataLoader
 from data.utils.datasets import * 
-from types import SimpleNamespace
 from src.utils.models import * 
 from copy import deepcopy
 from pathlib import Path 
@@ -17,11 +16,10 @@ import yaml
 import glob 
 import os 
 
-
-if ("mac" in platform.node()) or ("client" in platform.node()):
-    FLBENCH_ROOT = Path(os.getcwd())
-else: 
+if ("titans" in platform.node()) or ("gpu" in platform.node()):
     FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
+else: 
+    FLBENCH_ROOT = Path(os.getcwd())
 
 # set device 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -89,7 +87,10 @@ def init_client_models(model_name, model, client_num, dataset):
     """
     base_layers = deepcopy(model.base.state_dict())
     client_models = [None] * client_num 
-
+    
+    # load correct lowrank model for finetuning 
+    if "lowrank_cnn" in model_name: 
+        model_name = f"lowrank_cnn{model_name[11:]}_include"
     for i in range(client_num): 
         client_model = MODELS[model_name](dataset = dataset, pretrained = False)
         client_model.base.load_state_dict(base_layers)
@@ -137,6 +138,7 @@ def finetune(client_model, train_loader, test_loader, config_args, epochs):
     accuracies = np.zeros(epochs)
     for e in tqdm(range(epochs)): 
         client_model.train()
+        losses = 0 
         # finetune one round
         for x, y in train_loader: 
             x, y, = x.to(device), y.to(device)
@@ -145,8 +147,12 @@ def finetune(client_model, train_loader, test_loader, config_args, epochs):
 
             output = client_model(x)
             loss = criterion(output, y)
+            torch.nn.utils.clip_grad_norm_(classifier_params, max_norm=0.1)
             loss.backward()
             optimizer.step()
+
+            losses += loss 
+        print(losses)
 
         # test
         acc = test(test_loader, client_model) 
