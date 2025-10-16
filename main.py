@@ -5,6 +5,7 @@ from pathlib import Path
 import platform 
 import hydra
 from omegaconf import DictConfig
+import os 
 
 from src.server.fedavg import FedAvgServer
 
