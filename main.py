@@ -12,7 +12,6 @@ FLBENCH_ROOT = Path(__file__).parent.absolute()
 if FLBENCH_ROOT not in sys.path:
     sys.path.append(FLBENCH_ROOT.as_posix())
 
-print(FLBENCH_ROOT)
 
 from src.utils.functional import parse_args
 
