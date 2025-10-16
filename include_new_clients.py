@@ -16,10 +16,9 @@ import yaml
 import glob 
 import os 
 
-if ("titans" in platform.node()) or ("gpu" in platform.node()):
-    FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
-else: 
-    FLBENCH_ROOT = Path(os.getcwd())
+
+FLBENCH_ROOT = os.getcwd()
+
 
 # set device 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -134,11 +133,12 @@ def finetune(client_model, train_loader, test_loader, config_args, epochs):
     )
     optimizer = optimizer_cls(classifier_params)
     criterion = torch.nn.CrossEntropyLoss(reduction="sum")
-
+    client_model.to(device)
     accuracies = np.zeros(epochs)
     for e in tqdm(range(epochs)): 
         client_model.train()
         losses = 0 
+
         # finetune one round
         for x, y in train_loader: 
             x, y, = x.to(device), y.to(device)
@@ -177,6 +177,11 @@ def include_new_clients(args):
     # get model and dataset 
     model, model_name = load_model(args.run_dir, config_args, config_args['dataset']['name'])
     dataset, data_indices, num_clients = get_dataset(config_args['dataset']['name'])
+
+    if len(dataset) == 30000: 
+        print(f"Length of dataset {len(dataset)}: Running on similar clients")
+    else: 
+        print(f"Length of dataset {len(dataset)}: Running on different clients")
     
     # get client models
     client_models = init_client_models(model_name, model, num_clients, config_args['dataset']['name'])

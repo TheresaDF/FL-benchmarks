@@ -92,6 +92,16 @@ class FedAvgServer:
         self.val_clients: List[int] = self.data_partition["separation"]["val"]
         self.client_num: int = self.data_partition["separation"]["total"]
 
+        train_idx = sum([len(self.data_partition['data_indices'][x]['train']) for x in range(len(self.data_partition['data_indices']))])
+        val_idx = sum([len(self.data_partition['data_indices'][x]['val']) for x in range(len(self.data_partition['data_indices']))])
+        test_idx = sum([len(self.data_partition['data_indices'][x]['test']) for x in range(len(self.data_partition['data_indices']))])
+
+        length = train_idx + val_idx + test_idx 
+        if length == 30000: 
+            print(f"Length of datasets {length}: Running on similar clients")
+        else: 
+            print(f"Length of datasets {length}: Running on different clients")
+
         # init model parameters
         if init_model:
             self.init_model()

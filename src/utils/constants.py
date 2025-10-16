@@ -4,11 +4,10 @@ from enum import Enum
 from pathlib import Path
 import platform
 from torch import optim
+import sys 
 
-if ("mac" in platform.node()) or ("client" in platform.node()):
-    FLBENCH_ROOT = Path(os.getcwd())
-else: 
-    FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark")
+
+FLBENCH_ROOT = os.getcwd()
     
 print("Directory", FLBENCH_ROOT)
 
