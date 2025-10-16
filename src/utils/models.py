@@ -605,6 +605,90 @@ class LowRank_CNN(DecoupledModel):
     def forward(self, x):
         flat_weights = self.base(self.classifier)  # x = U @ v
 
+
+        idx = 0
+        def next_weights(shape):
+            nonlocal idx
+            n = torch.tensor(shape).prod().item()
+            w = flat_weights[idx:idx + n].view(*shape)
+            idx += n
+            return w
+
+        conv1_w = next_weights(self.param_shapes["conv1"])
+        conv2_w = next_weights(self.param_shapes["conv2"])
+        fc_w    = next_weights(self.param_shapes["fc"])
+
+        # Forward pass with explicit biases
+        x = F.conv2d(x, conv1_w, bias=self.bias_conv1, padding=1)
+        x = F.relu(x)
+        #x = F.max_pool2d(x, 2)
+
+        x = F.conv2d(x, conv2_w, bias=self.bias_conv2, padding=1)
+        x = F.relu(x)
+        #x = F.max_pool2d(x, 2)
+
+        x = torch.flatten(x, start_dim=1)
+        x = F.linear(x, fc_w, bias=self.bias_fc)
+        return x
+
+class LowRank_CNN_include(DecoupledModel):
+    feature_length = {
+        "mnist": 784,
+        "medmnistS": 784,
+        "medmnistC": 784,
+        "medmnistA": 784,
+        "fmnist": 784,
+        "emnist": 784,
+        "femnist": 784,
+        "cifar10": 3072,
+        "cinic10": 3072,
+        "svhn": 3072,
+        "cifar100": 3072,
+        "usps": 1536,
+        "synthetic": DATA_SHAPE["synthetic"],
+    }
+
+    def __init__(self, rank, dataset, pretrained):
+        super().__init__()
+        self.rank = rank
+        self.dataset = dataset
+        self.pretrained = pretrained
+
+        input_dim = self.feature_length[dataset]
+        num_classes = NUM_CLASSES[dataset]
+
+        if input_dim != 3 * 32 * 32:
+            raise ValueError(f"LowRank_CNN expects 3×32×32 input. Got input_dim={input_dim} for dataset={dataset}.")
+
+        # Layer shapes
+        dims = {
+            "conv1": (32, 3, 3, 3),
+            "conv2": (64, 32, 3, 3),
+            "fc": (num_classes, 64 * 32 * 32),  # assumes no pooling
+        }
+
+        self.param_shapes = dims
+
+        total_params = (
+            torch.tensor(dims["conv1"]).prod().item() +
+            torch.tensor(dims["conv2"]).prod().item() +
+            torch.tensor(dims["fc"]).prod().item()
+        )
+
+        self.base = nn.Linear(rank, total_params, bias=False)  # U
+        self.classifier = nn.Parameter(torch.randn(rank))      # v
+
+        # Explicit biases (not from U @ v)
+        self.bias_conv1 = nn.Parameter(torch.zeros(dims["conv1"][0]))
+        self.bias_conv2 = nn.Parameter(torch.zeros(dims["conv2"][0]))
+        self.bias_fc = nn.Parameter(torch.zeros(dims["fc"][0]))
+
+    def forward(self, x):
+        flat_weights = self.base(self.classifier)  # x = U @ v
+
+        # prevent the loss from blowing up
+        flat_weights = torch.tanh(flat_weights) * 0.05
+
         idx = 0
         def next_weights(shape):
             nonlocal idx
@@ -631,7 +715,6 @@ class LowRank_CNN(DecoupledModel):
         return x
 
 
-
 # Add LowRank DNN models with rank from 1 to 20
 lowrank_dnn_models = {
     f"lowrank_dnn{r}": partial(LowRank_DNN, rank=r, pretrained=False) for r in range(1, 21)
@@ -640,6 +723,9 @@ lowrank_dnn_models = {
 # Add LowRank CNN models with rank from 1 to 20
 lowrank_cnn_models = {
     f"lowrank_cnn{r}": partial(LowRank_CNN, rank=r, pretrained=False) for r in range(1, 21)
+}
+lowrank_cnn_models_include = {
+    f"lowrank_cnn{r}_include": partial(LowRank_CNN_include, rank=r, pretrained=False) for r in range(1, 21)
 }
 
 MODELS = {
@@ -680,4 +766,5 @@ MODELS = {
     "vgg19": partial(VGG, version="19"),
     **lowrank_dnn_models,  # Low-rank fully connected models
     **lowrank_cnn_models,  # Low-rank convolutional models
+    **lowrank_cnn_models_include
 }
