@@ -513,7 +513,6 @@ class CIFAR100(BaseDataset):
                 i for i, cls_idx in enumerate(targets)
                 if class_names[cls_idx] in allowed_subclasses
             ]
-
             data = data[include_indices]
             fine_targets = targets[include_indices]
 
@@ -525,6 +524,7 @@ class CIFAR100(BaseDataset):
 
             # --- If we only need a subset then shuffle and 
             N = len(data)
+
             random_indices = torch.randperm(N)
             if subset == "train":
                 data = data[random_indices, :, :, :][:N//2]
@@ -533,6 +533,7 @@ class CIFAR100(BaseDataset):
                 data = data[random_indices, :, :, :][N//2:]
                 targets = targets[random_indices][N//2:]
 
+            print(f"Number of datapoints : {len(data)}")
             # --- Update class list (20 superclasses) ---
             classes = list(range(20))
         
