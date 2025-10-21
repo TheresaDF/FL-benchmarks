@@ -3,7 +3,7 @@
 # the defaults can be found in src/utils/constants.py
 
 # The method name must be identical to the file name in src/server/<method>.py
-method: fedrep 
+method: pflmf
 
 dataset:
   # [mnist, cifar10, cifar100, emnist, fmnist, femnist, medmnist,
@@ -12,7 +12,7 @@ dataset:
   name: cifar100
 
 model:
-  name: avgcnn 
+  name: lowrank_cnn10 
 
   # Whether to use torchvision integrated model weights.
   # Has no effect if model is lenet5, 2nn or fedavgcnn
@@ -44,7 +44,7 @@ lr_scheduler:
 
 # The optimizer that used for client local training.
 optimizer:
-  name: sgd # [sgd, adam, adamw, rmsprop, adagrad]
+  name: adam # [sgd, adam, adamw, rmsprop, adagrad]
   lr: 0.0001
   dampening: 0 # for SGD
   weight_decay: 0
@@ -76,10 +76,10 @@ parallel:
 
 common:
   seed: 42 # Random seed of the run.
-  join_ratio: 0.5 # Ratio for (client each round) / (client num in total).
+  join_ratio: 0.1 # Ratio for (client each round) / (client num in total).
   global_epoch: 100 # Number of global epochs, also called communication round.
-  local_epoch: 5 # Number if epochs of client local training.
-  batch_size: 256 # Data batch size for client local training.
+  local_epoch: 1 # Number if epochs of client local training.
+  batch_size: 32 # Data batch size for client local training.
   reset_optimizer_on_global_epoch: true # Whether to reset optimizer on each global epoch.
 
   # The ratio of stragglers (set in [0, 1]).
@@ -127,7 +127,7 @@ common:
   use_cuda: true # Whether to use cuda for training.
 
   save_log: true # Whether to save log files in out/<method>/<start_time>.
-  save_model: true # Whether to save model weights (*.pt) in out/<method>/<start_time>.
+  save_model: false # Whether to save model weights (*.pt) in out/<method>/<start_time>.
   save_learning_curve_plot: true # Whether to save learning curve figure (*.png) in out/<method>/<start_time>.
   save_metrics: true # Whether to save metrics (*.csv) in out/<method>/<start_time>.
 
@@ -153,7 +153,7 @@ signfedavg:
 
 pflmf:
   num_steps_u: 1
-  num_steps_v: 500
+  num_steps_v: 1
   lr_u: 0.001
   lr_v: 0.001
 
