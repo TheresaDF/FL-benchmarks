@@ -44,7 +44,7 @@ def load_config(run_dir):
 def load_data_partition(dataset_name : str) -> list[dict]: 
     try:
         partition_path = (
-            FLBENCH_ROOT / "data" / dataset_name / "partition.pkl"
+            FLBENCH_ROOT + "/data/" + dataset_name + "/partition.pkl"
         )
         with open(partition_path, "rb") as f:
             data_partition = pickle.load(f)
@@ -54,8 +54,8 @@ def load_data_partition(dataset_name : str) -> list[dict]:
     return data_partition['data_indices'], len(data_partition['data_indices'])
 
 def get_dataset(dataset_name) -> BaseDataset:
-    root = FLBENCH_ROOT / "data" / dataset_name
-    with open(root / "args.json", "r") as f: 
+    root = FLBENCH_ROOT + "/data/" + dataset_name
+    with open(root + "/args.json", "r") as f: 
         args = json.load(f)
     
     dataset = DATASETS[dataset_name](root, args)
@@ -152,8 +152,7 @@ def finetune(client_model, train_loader, test_loader, config_args, epochs):
             optimizer.step()
 
             losses += loss 
-        print(losses)
-
+            
         # test
         acc = test(test_loader, client_model) 
         accuracies[e] = acc 
