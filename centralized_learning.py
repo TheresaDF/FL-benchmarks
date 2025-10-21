@@ -9,18 +9,15 @@ import os
 # set device 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-if ("mac" in platform.node()) or ("client" in platform.node()):
-    FLBENCH_ROOT = Path(os.getcwd())
-else: 
-    FLBENCH_ROOT = Path("../../../scratch/tdafr/benchmark") 
+FLBENCH_ROOT = os.getcwd()
 
 
 def get_dataset(dataset_name, train_transform=None, test_transform=None):
     """
     Returns train_loader and test_loader for the full dataset.
     """
-    root = FLBENCH_ROOT / "data" / dataset_name
-    with open(root / "args.json", "r") as f:
+    root = FLBENCH_ROOT + "/data/" + dataset_name
+    with open(root + "/args.json", "r") as f:
         args = json.load(f)
 
     # Load full dataset
@@ -68,6 +65,7 @@ def evaluate(model, loader):
 def train(args):
     # init model 
     model = MODELS[args.model_name](dataset = args.dataset, pretrained = False)
+    model.to(device)
     model.train()
 
     # get data 
